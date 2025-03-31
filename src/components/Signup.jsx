@@ -8,7 +8,6 @@ const Signup = () => {
     name: '',
     email: '',
     password: '',
-    confirmPassword: ''
   });
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState('');
@@ -28,27 +27,35 @@ const Signup = () => {
     if (!formData.name.trim()) newErrors.name = 'Nombre es requerido';
     if (!/^\S+@\S+\.\S+$/.test(formData.email)) newErrors.email = 'Email inválido';
     if (formData.password.length < 6) newErrors.password = 'Mínimo 6 caracteres';
-    if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Las contraseñas no coinciden';
-    
+  
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
-
+    console.log('Formulario enviado');
+    if (!validateForm()) {
+      console.log('Validación fallida', errors);
+      return;
+    }
     setIsSubmitting(true);
     try {
-      const response = await axios.post('/api/auth/signup', {
+      console.log('Enviando datos:', formData);
+      const response = await axios.post('http://localhost:3001/register', {
         name: formData.name,
         email: formData.email,
         password: formData.password
+      }, {
+        headers: {
+            'Content-Type': 'application/json'
+        }
       });
       
       localStorage.setItem('token', response.data.token);
-      navigate('/dashboard');
+      navigate('/login');
     } catch (err) {
+      console.error('Error en la solicitud:', err);
       setServerError(err.response?.data?.message || 'Error al registrar');
     } finally {
       setIsSubmitting(false);
@@ -69,11 +76,13 @@ const Signup = () => {
                 <Form.Label>Nombre completo</Form.Label>
                 <Form.Control
                   type="text"
+                  id="name" 
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
                   isInvalid={!!errors.name}
                   placeholder="Ej: Juan Pérez"
+                  autoComplete="name"
                 />
                 <Form.Control.Feedback type="invalid">
                   {errors.name}
@@ -84,11 +93,13 @@ const Signup = () => {
                 <Form.Label>Email</Form.Label>
                 <Form.Control
                   type="email"
+                  id="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
                   isInvalid={!!errors.email}
                   placeholder="ejemplo@mail.com"
+                  autoComplete="email"
                 />
                 <Form.Control.Feedback type="invalid">
                   {errors.email}
@@ -99,29 +110,16 @@ const Signup = () => {
                 <Form.Label>Contraseña</Form.Label>
                 <Form.Control
                   type="password"
+                  id="password"
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
                   isInvalid={!!errors.password}
                   placeholder="Mínimo 6 caracteres"
+                  autoComplete="new-password"
                 />
                 <Form.Control.Feedback type="invalid">
                   {errors.password}
-                </Form.Control.Feedback>
-              </Form.Group>
-
-              <Form.Group className="mb-4">
-                <Form.Label>Confirmar contraseña</Form.Label>
-                <Form.Control
-                  type="password"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  isInvalid={!!errors.confirmPassword}
-                  placeholder="Repite tu contraseña"
-                />
-                <Form.Control.Feedback type="invalid">
-                  {errors.confirmPassword}
                 </Form.Control.Feedback>
               </Form.Group>
 

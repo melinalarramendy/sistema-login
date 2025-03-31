@@ -37,7 +37,7 @@ const Login = () => {
 
     setIsSubmitting(true);
     try {
-      const response = await axios.post('/api/auth/login', {
+      const response = await axios.post('http://localhost:3001/login', {
         email: formData.email,
         password: formData.password
       });
@@ -118,7 +118,7 @@ const Login = () => {
 
                 <div className="text-center mt-3">
                   <span className="text-muted">¿No tienes cuenta? </span>
-                  <Link to="/signup" className="text-decoration-none">
+                  <Link to="/register" className="text-decoration-none">
                     Registrate
                   </Link>
                 </div>
