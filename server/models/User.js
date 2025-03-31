@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+//const bcrypt = require('bcryptjs');
 
 const UserSchema = new mongoose.Schema({
     name: {
@@ -14,6 +15,12 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
 }, { timestamps: true });
 
 const UserModel = mongoose.model('User', UserSchema);
