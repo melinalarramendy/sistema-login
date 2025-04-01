@@ -57,76 +57,94 @@ const transporter = nodemailer.createTransport({
 
 app.post('/forgot-password', async (req, res) => {
     const { email } = req.body;
+  
     try {
-        const user = await UserModel.findOne({ email });
-        if (!user) {
-            return res.status(404).json({ message: 'Usuario no encontrado' });
-        }
-
-        const resetToken = crypto.randomBytes(20).toString('hex');
-        const resetTokenExpiry = Date.now() + 3600000;
-        user.resetToken = resetToken;
-        user.resetTokenExpiry = resetTokenExpiry;
-        await user.save();
-
-        const resetUrl = `http://localhost:5173/reset-password?token=${resetToken}`;
-
-        const mailOptions = {
-            from: '"Prueba" <no-reply@melina.com>', 
-            to: user.email, 
-            subject: 'Recuperación de contraseña',
-            text: `Para resetear tu contraseña, usa el siguiente token: ${resetToken}\n\nO haz clic en este enlace: ${resetUrl}\n\nEl token expira en 1 hora.`,
-
-            html: `
-              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <h2 style="color: #2563eb;">Recuperación de contraseña</h2>
-                <p>Hemos recibido una solicitud para restablecer tu contraseña.</p>
-                <p>Token: <strong>${resetToken}</strong></p>
-                <p>O haz clic en el siguiente enlace:</p>
-                <a href="${resetUrl}" style="display: inline-block; background: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Restablecer contraseña</a>
-                <p style="color: #6b7280; font-size: 0.9rem; margin-top: 20px;">Este token expirará en 1 hora.</p>
-              </div>
-            `
-          };
-
-        await transporter.sendMail(mailOptions);
-
-        res.status(200).json({ message: 'Token enviado al correo electrónico' });
+      const user = await UserModel.findOne({ email });
+      if (!user) {
+        return res.status(404).json({ message: 'Usuario no encontrado' });
+      }
+  
+      const resetToken = crypto.randomBytes(20).toString('hex');
+      const resetTokenExpiry = Date.now() + 3600000; 
+  
+      user.resetToken = resetToken;
+      user.resetTokenExpiry = resetTokenExpiry;
+      await user.save(); 
+  
+      const resetUrl = `http://localhost:5173/reset-password?token=${resetToken}`;
+      
+      const mailOptions = {
+        to: user.email,
+        from: process.env.EMAIL_USER,
+        subject: 'Recuperación de contraseña',
+        text: `Tu token de recuperación es: ${resetToken}\n\nO haz clic en este enlace: ${resetUrl}\n\nEl token expira en 1 hora.`
+      };
+  
+      await transporter.sendMail(mailOptions);
+  
+      res.status(200).json({ 
+        success: true,
+        message: 'Token enviado al correo electrónico',
+        token: resetToken 
+      });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error al procesar la solicitud' });
+      console.error('Error en forgot-password:', error);
+      res.status(500).json({ message: 'Error al procesar la solicitud' });
     }
-});
+  });
 
 
-app.post('/reset-password', async (req, res) => {
+app.post('/resetpassword', async (req, res) => {
     const { token, newPassword, confirmPassword } = req.body;
-
+  
+    console.log('Datos recibidos:', { token, newPassword, confirmPassword });
     try {
-        if (newPassword !== confirmPassword) {
-            return res.status(400).json({ message: 'Las contraseñas no coinciden' });
-        }
 
-        const user = await UserModel.findOne({
-            resetToken: token,
-            resetTokenExpiry: { $gt: Date.now() } 
+      if (newPassword !== confirmPassword) {
+        console.log('Error: Las contraseñas no coinciden');
+        return res.status(400).json({ 
+          success: false,
+          message: 'Las contraseñas no coinciden',
+          errorType: 'password_mismatch'
         });
-
-        if (!user) {
-            return res.status(400).json({ message: 'Token inválido o expirado' });
-        }
-
-        user.password = newPassword;
-        user.resetToken = undefined;
-        user.resetTokenExpiry = undefined;
-        await user.save();
-
-        res.status(200).json({ message: 'Contraseña actualizada correctamente' });
+      }
+  
+      const user = await UserModel.findOne({ 
+        resetToken: token,
+        resetTokenExpiry: { $gt: Date.now() } 
+      });
+  
+      console.log('Usuario encontrado:', user); 
+  
+      if (!user) {
+        console.log('Error: Token inválido o expirado');
+        return res.status(400).json({ 
+          success: false,
+          message: 'Token inválido o expirado',
+          errorType: 'invalid_token'
+        });
+      }
+  
+      user.password = newPassword;
+      user.resetToken = undefined;
+      user.resetTokenExpiry = undefined;
+      await user.save();
+  
+      console.log('Contraseña actualizada para usuario:', user.email); 
+  
+      res.status(200).json({ 
+        success: true,
+        message: 'Contraseña actualizada correctamente'
+      });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error al resetear la contraseña' });
+      console.error('Error en resetpassword:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Error al resetear la contraseña',
+        error: error.message 
+      });
     }
-})
+  });
 
 
 app.listen(3001, () => {

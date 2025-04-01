@@ -37,20 +37,43 @@ const ForgotPassword = () => {
             return setError('Las contraseñas no coinciden');
         }
 
+        if (newPassword.length < 6) {
+            return setError('La contraseña debe tener al menos 6 caracteres');
+        }
+
         setLoading(true);
+        setError('');
+        setSuccess('');
 
         try {
-            await axios.post('http://localhost:3001/reset-password', {
-                token,
-                newPassword,
-                confirmPassword
+            const response = await axios.post('http://localhost:3001/resetpassword', {
+                token: token.trim(),
+                newPassword: newPassword.trim(),
+                confirmPassword: confirmPassword.trim()
+            }, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             });
+            console.log('Respuesta del servidor:', response.data);
 
-            setSuccess('Contraseña actualizada correctamente. Redirigiendo...');
-            setError('');
-            setTimeout(() => navigate('/login'), 2000);
+            if (response.data.success) {
+                setSuccess('Contraseña actualizada correctamente. Redirigiendo...');
+                setTimeout(() => navigate('/login'), 2000);
+            } else {
+                setError(response.data.message || 'Error al actualizar la contraseña');
+            }
         } catch (err) {
-            setError(err.response?.data?.message || 'Error al resetear la contraseña');
+            console.error('Error completo:', err.response?.data || err);
+
+            if (err.response?.data?.errorType === 'invalid_token') {
+                setError('El token es inválido o ha expirado. Solicita uno nuevo.');
+                setStep(1);
+            } else if (err.response?.data?.errorType === 'password_mismatch') {
+                setError('Las contraseñas no coinciden');
+            } else {
+                setError(err.response?.data?.message || 'Error al conectar con el servidor');
+            }
         } finally {
             setLoading(false);
         }
