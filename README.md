@@ -21,8 +21,8 @@ Este proyecto es un sistema de autenticación completo construido con el stack *
 ## 💻 Tecnologías
 
 ### Frontend
-- **React** 18
-- **React Router** v6
+- **React** 19
+- **React Router** v7
 - **React Bootstrap** 5
 - **Axios** para HTTP
 - **React Icons**
