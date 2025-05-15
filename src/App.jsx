@@ -1,8 +1,10 @@
 import React from 'react'
 import Signup from './components/Signup'
 import Login from './components/Login'
+import Dashboard from './components/Dashboard'
 import ForgotPassword from './components/Forgotpassword'
 import ResetPassword from './components/ResetPassword'
+import ProtectedRoute from './components/ProtectedRoute';
 import { Routes, Route } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './App.css'
@@ -17,6 +19,14 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/resetpassword" element={<ResetPassword />} />
+      <Route 
+          path="/dashboard" 
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } 
+        />
     </Routes>
     </div>
 

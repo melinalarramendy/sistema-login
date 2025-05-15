@@ -12,8 +12,8 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-const JWT_SECRET = 'tu_secreto_super_seguro'; // Cambia esto por una clave segura
-const JWT_EXPIRES_IN = '1h'; // El token expira en 1 hora
+const JWT_SECRET = 'tu_secreto_super_seguro'; 
+const JWT_EXPIRES_IN = '1h'; 
 
 mongoose.connect('mongodb://127.0.0.1:27017/registerlogin')
     .then(() => console.log('Conexión a MongoDB exitosa'))
