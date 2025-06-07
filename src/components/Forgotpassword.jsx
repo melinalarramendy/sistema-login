@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Form, Button, Alert, Container, Row, Col } from 'react-bootstrap';
+import { Form, Button, Alert, Container, Row, Col, Card } from 'react-bootstrap';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { FiMail, FiKey, FiLock } from 'react-icons/fi';
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
@@ -55,7 +56,6 @@ const ForgotPassword = () => {
                     'Content-Type': 'application/json'
                 }
             });
-            console.log('Respuesta del servidor:', response.data);
 
             if (response.data.success) {
                 setSuccess('Contraseña actualizada correctamente. Redirigiendo...');
@@ -64,8 +64,6 @@ const ForgotPassword = () => {
                 setError(response.data.message || 'Error al actualizar la contraseña');
             }
         } catch (err) {
-            console.error('Error completo:', err.response?.data || err);
-
             if (err.response?.data?.errorType === 'invalid_token') {
                 setError('El token es inválido o ha expirado. Solicita uno nuevo.');
                 setStep(1);
@@ -80,91 +78,135 @@ const ForgotPassword = () => {
     };
 
     return (
-        <Container className="mt-5">
-            <Row className="justify-content-center">
-                <Col md={6}>
-                    <div className="p-4 border rounded shadow-sm bg-white">
-                        <h2 className="text-center mb-4">Recuperar Contraseña</h2>
+        <div className="forgot-password-container">
+            <Container className="d-flex align-items-center justify-content-center" style={{ minHeight: '100vh' }}>
+                <Row className="w-100">
+                    <Col md={{ span: 6, offset: 3 }} lg={{ span: 4, offset: 4 }}>
+                        <Card className="forgot-password-card">
+                            <Card.Body className="p-4">
+                                <div className="text-center mb-4">
+                                    <div className="forgot-password-icon-container">
+                                        <FiKey size={32} className="forgot-password-icon" />
+                                    </div>
+                                    <h2 className="forgot-password-title">Recuperar Contraseña</h2>
+                                    <p className="forgot-password-subtitle">
+                                        {step === 1 ? 'Ingresa tu email para recibir un token' : 'Ingresa el token y tu nueva contraseña'}
+                                    </p>
+                                </div>
 
-                        {error && <Alert variant="danger">{error}</Alert>}
-                        {success && <Alert variant="success">{success}</Alert>}
+                                {error && (
+                                    <Alert variant="danger" dismissible onClose={() => setError('')} className="forgot-password-alert">
+                                        {error}
+                                    </Alert>
+                                )}
+                                {success && (
+                                    <Alert variant="success" dismissible onClose={() => setSuccess('')} className="forgot-password-alert">
+                                        {success}
+                                    </Alert>
+                                )}
 
-                        {step === 1 ? (
-                            <Form onSubmit={handleRequestToken}>
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Email</Form.Label>
-                                    <Form.Control
-                                        type="email"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        placeholder="Ingresa tu email"
-                                        required
-                                    />
-                                </Form.Group>
+                                {step === 1 ? (
+                                    <Form onSubmit={handleRequestToken} className="forgot-password-form">
+                                        <Form.Group className="mb-3 form-group-custom">
+                                            <div className="input-group-custom">
+                                                <FiMail className="input-icon" />
+                                                <Form.Control
+                                                    type="email"
+                                                    value={email}
+                                                    onChange={(e) => setEmail(e.target.value)}
+                                                    placeholder="tucorreo@ejemplo.com"
+                                                    required
+                                                    className="form-control-custom"
+                                                />
+                                            </div>
+                                        </Form.Group>
 
-                                <Button
-                                    variant="primary"
-                                    type="submit"
-                                    className="w-100"
-                                    disabled={loading}
-                                >
-                                    {loading ? 'Enviando...' : 'Enviar Token'}
-                                </Button>
-                            </Form>
-                        ) : (
-                            <Form onSubmit={handleResetPassword}>
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Token</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={token}
-                                        onChange={(e) => setToken(e.target.value)}
-                                        placeholder="Pega el token recibido"
-                                        required
-                                    />
-                                </Form.Group>
+                                        <Button
+                                            variant="primary"
+                                            type="submit"
+                                            className="forgot-password-button"
+                                            disabled={loading}
+                                        >
+                                            {loading ? (
+                                                <>
+                                                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                                    Enviando...
+                                                </>
+                                            ) : 'Enviar Token'}
+                                        </Button>
+                                    </Form>
+                                ) : (
+                                    <Form onSubmit={handleResetPassword} className="forgot-password-form">
+                                        <Form.Group className="mb-3 form-group-custom">
+                                            <div className="input-group-custom">
+                                                <FiKey className="input-icon" />
+                                                <Form.Control
+                                                    type="text"
+                                                    value={token}
+                                                    onChange={(e) => setToken(e.target.value)}
+                                                    placeholder="Pega el token recibido"
+                                                    required
+                                                    className="form-control-custom"
+                                                />
+                                            </div>
+                                        </Form.Group>
 
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Nueva Contraseña</Form.Label>
-                                    <Form.Control
-                                        type="password"
-                                        value={newPassword}
-                                        onChange={(e) => setNewPassword(e.target.value)}
-                                        placeholder="Nueva contraseña"
-                                        minLength="6"
-                                        required
-                                    />
-                                </Form.Group>
+                                        <Form.Group className="mb-3 form-group-custom">
+                                            <div className="input-group-custom">
+                                                <FiLock className="input-icon" />
+                                                <Form.Control
+                                                    type="password"
+                                                    value={newPassword}
+                                                    onChange={(e) => setNewPassword(e.target.value)}
+                                                    placeholder="Nueva contraseña"
+                                                    minLength="6"
+                                                    required
+                                                    className="form-control-custom"
+                                                />
+                                            </div>
+                                        </Form.Group>
 
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Confirmar Contraseña</Form.Label>
-                                    <Form.Control
-                                        type="password"
-                                        value={confirmPassword}
-                                        onChange={(e) => setConfirmPassword(e.target.value)}
-                                        placeholder="Repite la nueva contraseña"
-                                        required
-                                    />
-                                </Form.Group>
+                                        <Form.Group className="mb-4 form-group-custom">
+                                            <div className="input-group-custom">
+                                                <FiLock className="input-icon" />
+                                                <Form.Control
+                                                    type="password"
+                                                    value={confirmPassword}
+                                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                                    placeholder="Repite la nueva contraseña"
+                                                    required
+                                                    className="form-control-custom"
+                                                />
+                                            </div>
+                                        </Form.Group>
 
-                                <Button
-                                    variant="primary"
-                                    type="submit"
-                                    className="w-100"
-                                    disabled={loading}
-                                >
-                                    {loading ? 'Actualizando...' : 'Actualizar Contraseña'}
-                                </Button>
-                            </Form>
-                        )}
+                                        <Button
+                                            variant="primary"
+                                            type="submit"
+                                            className="forgot-password-button"
+                                            disabled={loading}
+                                        >
+                                            {loading ? (
+                                                <>
+                                                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                                    Actualizando...
+                                                </>
+                                            ) : 'Actualizar Contraseña'}
+                                        </Button>
+                                    </Form>
+                                )}
 
-                        <div className="text-center mt-3">
-                            <a href="/login" className="text-decoration-none">Volver al login</a>
-                        </div>
-                    </div>
-                </Col>
-            </Row>
-        </Container>
+                                <div className="text-center mt-4 back-to-login-container">
+                                    <Link to="/login" className="back-to-login-link">
+                                        Volver al inicio de sesión
+                                    </Link>
+                                </div>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                </Row>
+            </Container>
+        </div>
     );
 };
 

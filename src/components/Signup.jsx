@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Form, Button, Alert, Container, Row, Col, Card } from 'react-bootstrap';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiUserPlus } from 'react-icons/fi';
+import { FiUserPlus, FiUser, FiMail, FiLock } from 'react-icons/fi';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -71,7 +71,6 @@ const Signup = () => {
 
       if (response.data && response.data.token) {
         localStorage.setItem('token', response.data.token);
-        
         navigate('/login');
       } else {
         throw new Error('Respuesta inesperada del servidor');
@@ -99,116 +98,132 @@ const Signup = () => {
   };
 
   return (
-    <Container className="d-flex align-items-center justify-content-center" style={{ minHeight: '100vh' }}>
-      <Row className="w-100">
-        <Col md={{ span: 6, offset: 3 }} lg={{ span: 4, offset: 4 }}>
-          <Card className="shadow-sm border-0">
-            <Card.Body className="p-4">
-              <div className="text-center mb-4">
-                <FiUserPlus size={32} className="text-primary mb-2" />
-                <h2>Crear Cuenta</h2>
-                <p className="text-muted">Regístrate para comenzar</p>
-              </div>
-
-              {serverError && (
-                <Alert variant="danger" dismissible onClose={() => setServerError('')}>
-                  {serverError}
-                </Alert>
-              )}
-
-              <Form onSubmit={handleSubmit} noValidate>
-                <Form.Group className="mb-3">
-                  <Form.Label>Nombre Completo</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    isInvalid={!!errors.name}
-                    placeholder="Ej: Juan Pérez"
-                    required
-                    minLength="3"
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    {errors.name}
-                  </Form.Control.Feedback>
-                </Form.Group>
-
-                <Form.Group className="mb-3">
-                  <Form.Label>Email</Form.Label>
-                  <Form.Control
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    isInvalid={!!errors.email}
-                    placeholder="tucorreo@ejemplo.com"
-                    required
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    {errors.email}
-                  </Form.Control.Feedback>
-                </Form.Group>
-
-                <Form.Group className="mb-3">
-                  <Form.Label>Contraseña</Form.Label>
-                  <Form.Control
-                    type="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    isInvalid={!!errors.password}
-                    placeholder="Mínimo 6 caracteres"
-                    required
-                    minLength="6"
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    {errors.password}
-                  </Form.Control.Feedback>
-                </Form.Group>
-
-                <Form.Group className="mb-4">
-                  <Form.Label>Confirmar Contraseña</Form.Label>
-                  <Form.Control
-                    type="password"
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    isInvalid={!!errors.confirmPassword}
-                    placeholder="Repite tu contraseña"
-                    required
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    {errors.confirmPassword}
-                  </Form.Control.Feedback>
-                </Form.Group>
-
-                <Button 
-                  variant="primary" 
-                  type="submit" 
-                  className="w-100 mb-3 py-2"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                      Registrando...
-                    </>
-                  ) : 'Crear Cuenta'}
-                </Button>
-
-                <div className="text-center mt-3">
-                  <span className="text-muted">¿Ya tienes cuenta? </span>
-                  <Link to="/login" className="text-decoration-none">
-                    Inicia Sesión
-                  </Link>
+    <div className="signup-container">
+      <Container className="d-flex align-items-center justify-content-center" style={{ minHeight: '100vh' }}>
+        <Row className="w-100">
+          <Col md={{ span: 6, offset: 3 }} lg={{ span: 4, offset: 4 }}>
+            <Card className="signup-card">
+              <Card.Body className="p-4">
+                <div className="text-center mb-4">
+                  <div className="signup-icon-container">
+                    <FiUserPlus size={32} className="signup-icon" />
+                  </div>
+                  <h2 className="signup-title">Crear Cuenta</h2>
+                  <p className="signup-subtitle">Regístrate para comenzar</p>
                 </div>
-              </Form>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-    </Container>
+
+                {serverError && (
+                  <Alert variant="danger" dismissible onClose={() => setServerError('')} className="signup-alert">
+                    {serverError}
+                  </Alert>
+                )}
+
+                <Form onSubmit={handleSubmit} noValidate className="signup-form">
+                  <Form.Group className="mb-3 form-group-custom">
+                    <div className="input-group-custom">
+                      <FiUser className="input-icon" />
+                      <Form.Control
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        isInvalid={!!errors.name}
+                        placeholder="Ej: Juan Pérez"
+                        required
+                        minLength="3"
+                        className="form-control-custom"
+                      />
+                    </div>
+                    <Form.Control.Feedback type="invalid" className="invalid-feedback-custom">
+                      {errors.name}
+                    </Form.Control.Feedback>
+                  </Form.Group>
+
+                  <Form.Group className="mb-3 form-group-custom">
+                    <div className="input-group-custom">
+                      <FiMail className="input-icon" />
+                      <Form.Control
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        isInvalid={!!errors.email}
+                        placeholder="tucorreo@ejemplo.com"
+                        required
+                        className="form-control-custom"
+                      />
+                    </div>
+                    <Form.Control.Feedback type="invalid" className="invalid-feedback-custom">
+                      {errors.email}
+                    </Form.Control.Feedback>
+                  </Form.Group>
+
+                  <Form.Group className="mb-3 form-group-custom">
+                    <div className="input-group-custom">
+                      <FiLock className="input-icon" />
+                      <Form.Control
+                        type="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        isInvalid={!!errors.password}
+                        placeholder="Mínimo 6 caracteres"
+                        required
+                        minLength="6"
+                        className="form-control-custom"
+                      />
+                    </div>
+                    <Form.Control.Feedback type="invalid" className="invalid-feedback-custom">
+                      {errors.password}
+                    </Form.Control.Feedback>
+                  </Form.Group>
+
+                  <Form.Group className="mb-4 form-group-custom">
+                    <div className="input-group-custom">
+                      <FiLock className="input-icon" />
+                      <Form.Control
+                        type="password"
+                        name="confirmPassword"
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        isInvalid={!!errors.confirmPassword}
+                        placeholder="Repite tu contraseña"
+                        required
+                        className="form-control-custom"
+                      />
+                    </div>
+                    <Form.Control.Feedback type="invalid" className="invalid-feedback-custom">
+                      {errors.confirmPassword}
+                    </Form.Control.Feedback>
+                  </Form.Group>
+
+                  <Button 
+                    variant="primary" 
+                    type="submit" 
+                    className="signup-button"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Registrando...
+                      </>
+                    ) : 'Crear Cuenta'}
+                  </Button>
+
+                  <div className="text-center mt-4 login-link-container">
+                    <span className="login-text">¿Ya tienes cuenta? </span>
+                    <Link to="/login" className="login-link">
+                      Inicia Sesión
+                    </Link>
+                  </div>
+                </Form>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
+    </div>
   );
 };
 

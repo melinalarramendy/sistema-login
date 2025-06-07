@@ -32,7 +32,6 @@ import {
     GearFill
 } from 'react-bootstrap-icons';
 
-// Componentes de gráficos (simulados)
 const LineChart = ({ data }) => <div className="bg-light p-4 rounded">Line Chart Placeholder</div>;
 const PieChart = ({ data }) => <div className="bg-light p-4 rounded">Pie Chart Placeholder</div>;
 const BarChart = ({ data }) => <div className="bg-light p-4 rounded">Bar Chart Placeholder</div>;
@@ -117,13 +116,12 @@ const Dashboard = ({ userRole }) => {
     const [showDateModal, setShowDateModal] = useState(false);
     const logout = useLogout();
 
-    // Datos de ejemplo
+
     useEffect(() => {
         const fetchData = async () => {
             try {
                 setIsLoading(true);
                 setError(null);
-                // Simulación de llamada API
                 await new Promise(resolve => setTimeout(resolve, 1000));
 
                 // Datos mock

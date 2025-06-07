@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Form, Button, Alert, Container, Row, Col, Card } from 'react-bootstrap';
 import axios from 'axios';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { FiLock, FiCheckCircle } from 'react-icons/fi';
 
 const ResetPassword = () => {
     const [searchParams] = useSearchParams();
@@ -22,6 +23,13 @@ const ResetPassword = () => {
             ...formData,
             [name]: value
         });
+        // Clear error when user types
+        if (errors[name]) {
+            setErrors({
+                ...errors,
+                [name]: null
+            });
+        }
     };
 
     const validateForm = () => {
@@ -54,14 +62,12 @@ const ResetPassword = () => {
             });
 
             if (response.data.success) {
-                setServerSuccess(response.data.message);
+                setServerSuccess(response.data.message || 'Contraseña actualizada correctamente');
                 setTimeout(() => navigate('/login'), 2000);
             } else {
                 setServerError(response.data.message || 'Error desconocido');
             }
         } catch (err) {
-            console.error('Error completo:', err);
-
             if (err.response) {
                 if (err.response.data.errorType === 'invalid_token') {
                     setServerError('El token es inválido o ha expirado');
@@ -81,63 +87,98 @@ const ResetPassword = () => {
     };
 
     return (
-        <Container className="mt-5">
-            <Row className="justify-content-center">
-                <Col md={6} lg={4}>
-                    <Card className="shadow-sm">
-                        <Card.Body>
-                            <h2 className="text-center mb-4">Restablecer Contraseña</h2>
+        <div className="reset-password-container">
+            <Container className="d-flex align-items-center justify-content-center" style={{ minHeight: '100vh' }}>
+                <Row className="w-100">
+                    <Col md={{ span: 6, offset: 3 }} lg={{ span: 4, offset: 4 }}>
+                        <Card className="reset-password-card">
+                            <Card.Body className="p-4">
+                                <div className="text-center mb-4">
+                                    <div className="reset-password-icon-container">
+                                        <FiLock size={32} className="reset-password-icon" />
+                                    </div>
+                                    <h2 className="reset-password-title">Restablecer Contraseña</h2>
+                                    <p className="reset-password-subtitle">Crea una nueva contraseña para tu cuenta</p>
+                                </div>
 
-                            {serverError && <Alert variant="danger">{serverError}</Alert>}
-                            {serverSuccess && <Alert variant="success">{serverSuccess}</Alert>}
+                                {serverError && (
+                                    <Alert variant="danger" dismissible onClose={() => setServerError('')} className="reset-password-alert">
+                                        {serverError}
+                                    </Alert>
+                                )}
 
-                            <Form onSubmit={handleSubmit}>
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Nueva Contraseña</Form.Label>
-                                    <Form.Control
-                                        type="password"
-                                        name="newPassword"
-                                        value={formData.newPassword}
-                                        onChange={handleChange}
-                                        isInvalid={!!errors.newPassword}
-                                        placeholder="Mínimo 6 caracteres"
-                                        autoComplete="new-password"
-                                    />
-                                    <Form.Control.Feedback type="invalid">
-                                        {errors.newPassword}
-                                    </Form.Control.Feedback>
-                                </Form.Group>
+                                {serverSuccess && (
+                                    <Alert variant="success" dismissible onClose={() => setServerSuccess('')} className="reset-password-alert">
+                                        <FiCheckCircle className="me-2" />
+                                        {serverSuccess}
+                                    </Alert>
+                                )}
 
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Confirmar Contraseña</Form.Label>
-                                    <Form.Control
-                                        type="password"
-                                        name="confirmPassword"
-                                        value={formData.confirmPassword}
-                                        onChange={handleChange}
-                                        isInvalid={!!errors.confirmPassword}
-                                        placeholder="Repite tu nueva contraseña"
-                                        autoComplete="new-password"
-                                    />
-                                    <Form.Control.Feedback type="invalid">
-                                        {errors.confirmPassword}
-                                    </Form.Control.Feedback>
-                                </Form.Group>
+                                <Form onSubmit={handleSubmit} className="reset-password-form">
+                                    <Form.Group className="mb-3 form-group-custom">
+                                        <div className="input-group-custom">
+                                            <FiLock className="input-icon" />
+                                            <Form.Control
+                                                type="password"
+                                                name="newPassword"
+                                                value={formData.newPassword}
+                                                onChange={handleChange}
+                                                isInvalid={!!errors.newPassword}
+                                                placeholder="Mínimo 6 caracteres"
+                                                autoComplete="new-password"
+                                                className="form-control-custom"
+                                            />
+                                        </div>
+                                        <Form.Control.Feedback type="invalid" className="invalid-feedback-custom">
+                                            {errors.newPassword}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
 
-                                <Button
-                                    variant="primary"
-                                    type="submit"
-                                    className="w-100 mb-3"
-                                    disabled={isSubmitting}
-                                >
-                                    {isSubmitting ? 'Actualizando...' : 'Actualizar Contraseña'}
-                                </Button>
-                            </Form>
-                        </Card.Body>
-                    </Card>
-                </Col>
-            </Row>
-        </Container>
+                                    <Form.Group className="mb-4 form-group-custom">
+                                        <div className="input-group-custom">
+                                            <FiLock className="input-icon" />
+                                            <Form.Control
+                                                type="password"
+                                                name="confirmPassword"
+                                                value={formData.confirmPassword}
+                                                onChange={handleChange}
+                                                isInvalid={!!errors.confirmPassword}
+                                                placeholder="Repite tu nueva contraseña"
+                                                autoComplete="new-password"
+                                                className="form-control-custom"
+                                            />
+                                        </div>
+                                        <Form.Control.Feedback type="invalid" className="invalid-feedback-custom">
+                                            {errors.confirmPassword}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
+
+                                    <Button
+                                        variant="primary"
+                                        type="submit"
+                                        className="reset-password-button"
+                                        disabled={isSubmitting}
+                                    >
+                                        {isSubmitting ? (
+                                            <>
+                                                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                                Actualizando...
+                                            </>
+                                        ) : 'Actualizar Contraseña'}
+                                    </Button>
+
+                                    <div className="text-center mt-4 back-to-login-container">
+                                        <Link to="/login" className="back-to-login-link">
+                                            Volver al inicio de sesión
+                                        </Link>
+                                    </div>
+                                </Form>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                </Row>
+            </Container>
+        </div>
     );
 };
 
